@@ -125,6 +125,34 @@ flutter pub run build_runner build --delete-conflicting-outputs
 flutter run
 ```
 
+
+## Seed Data (Testing)
+
+The app includes a seed data feature for testing purposes. This automatically populates the database with dummy drawings when enabled.
+
+### Enable Seed Data
+
+1. Open `lib/data/local/seed_data.dart`
+2. Change `enabled` from `false` to `true`:
+   ```dart
+   static const bool enabled = true; // Enable seed data
+   ```
+3. Run the app - it will automatically create 12 sample drawings with different categories
+
+### Disable Seed Data
+
+Set `enabled` back to `false`:
+```dart
+static const bool enabled = false; // Disable seed data
+```
+
+### Clearing Seed Data
+
+Seed data is automatically skipped if drawings already exist. To clear seed data manually, you can use the `clearSeedData()` method or delete the app data.
+
+**Note:** Seed data uses the brush mascot image as a placeholder. In production, you would want to use actual sample drawings.
+
+
 ---
 
 ## Notes
