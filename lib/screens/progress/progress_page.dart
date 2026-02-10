@@ -58,11 +58,16 @@ class _ProgressPageState extends State<ProgressPage> {
   void _applyFilters() {
     List<Drawing> filtered = List.from(_allDrawings);
 
-    // Apply category filter
+    // Apply category filter (drawing.category can be comma-separated for multiple categories)
     if (_selectedCategories.isNotEmpty) {
       filtered = filtered.where((drawing) {
-        return drawing.category != null &&
-            _selectedCategories.contains(drawing.category);
+        if (drawing.category == null || drawing.category!.isEmpty) return false;
+        final drawingCategories = drawing.category!
+            .split(',')
+            .map((s) => s.trim())
+            .where((s) => s.isNotEmpty)
+            .toSet();
+        return drawingCategories.any((c) => _selectedCategories.contains(c));
       }).toList();
     }
 
