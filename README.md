@@ -1,7 +1,7 @@
 # MODY AI – Flutter Mobile App
 
-MODY AI is a **local-first Flutter mobile application** developed as part of a university project.  
-The app helps users reflect on their drawing practice through uploads, inspiration, and feedback.
+MODY AI is a **local-first Flutter application** developed as part of a university project.  
+The app helps users reflect on their drawing practice through uploads, inspiration, progress tracking, and feedback.
 
 This repository contains the **current functional prototype** (UI + navigation + local SQLite database).
 
@@ -23,28 +23,46 @@ No backend is required for the current version.
 ```
 
 lib/
-├── main.dart                 # App entry point
+├── main.dart                   # App entry point
 │
 ├── app/
-│   ├── app_router.dart       # Central navigation (GoRouter)
-│   └── app_theme.dart        # Global theme configuration
+│   ├── app_router.dart         # Central navigation (GoRouter)
+│   └── app_theme.dart          # Global theme configuration
 │
 ├── screens/
-│   ├── landing/              # Landing / Home screen
-│   ├── progress/             # Progress page
-│   └── inspiration/          # Inspiration page
+│   ├── landing/                # Landing / Home screen
+│   ├── upload/                 # Upload flow (selection + future camera/gallery)
+│   ├── progress/               # Progress page(s)
+│   ├── inspiration/            # Inspiration browsing page(s)
+│   ├── feedback/               # Feedback screen(s)
+│   └── drawing_details/        # Drawing detail view(s)
 │
-├── widgets/
-│   └── action_button.dart    # Reusable UI components
+├── widgets/                    # Reusable UI components
 │
 ├── data/
 │   └── local/
-│       ├── tables.dart       # Drift table definitions
-│       ├── app_database.dart # Database setup + queries
-│       └── app_database.g.dart (generated)
+│       ├── tables.dart         # Drift table definitions
+│       ├── app_database.dart   # Database setup + queries
+│       ├── seed_data.dart      # Optional seed data for testing
+│       └── app_database.g.dart # Generated (build_runner)
 │
 assets/
-└── images/                   # App images (e.g. mascot)
+└── images/
+├── backgrounds/            # Background assets
+├── inspiration/            # Inspiration images
+│   ├── abstract/
+│   ├── nature/
+│   └── portraits/
+├── modern/                 # Additional UI/illustration assets
+└── progress_seed/          # Placeholder/seed images for progress testing
+
+android/                        # Android platform project
+ios/                            # iOS platform project
+macos/                          # macOS platform project
+linux/                          # Linux platform project
+windows/                        # Windows platform project
+web/                            # Web platform project (icons, etc.)
+test/                           # Unit/widget tests
 
 ````
 
@@ -57,12 +75,7 @@ Navigation is handled via **GoRouter**.
 - Use `context.push()` for pages that should allow back navigation
 - Use `context.go()` for root-level navigation
 
-Defined routes (see `app_router.dart`):
-
-- `/` → Landing screen
-- `/upload` → Upload flow (currently placeholder / handled by another team member)
-- `/progress` → Progress page
-- `/inspiration` → Inspiration page
+Routes are defined in `lib/app/app_router.dart`.
 
 ---
 
@@ -73,23 +86,23 @@ The app uses **Drift** as a typed ORM on top of SQLite.
 ### Tables
 
 #### `drawing`
-| Field        | Type      | Notes                                  |
-|-------------|-----------|----------------------------------------|
-| id          | int       | Primary key (auto increment)            |
-| name        | text      | Drawing name                            |
-| description | text?     | Optional description                   |
-| category    | text?     | Optional category                      |
-| date        | datetime  | Creation date                          |
-| image_data  | text      | Path to image stored on device         |
+| Field        | Type      | Notes                          |
+|-------------|-----------|--------------------------------|
+| id          | int       | Primary key (auto increment)   |
+| name        | text      | Drawing name                   |
+| description | text?     | Optional description           |
+| category    | text?     | Optional category              |
+| date        | datetime  | Creation date                  |
+| image_data  | text      | Path to image stored on device |
 
 #### `inspo_image`
-| Field       | Type | Notes |
-|------------|------|-------|
-| id         | int  | Primary key |
-| name       | text | |
-| level      | text | e.g. Beginner, Intermediate |
-| technique  | text | e.g. Shading, Perspective |
-| description| text?| Optional |
+| Field        | Type | Notes |
+|-------------|------|-------|
+| id          | int  | Primary key |
+| name        | text | |
+| level       | text | e.g. Beginner, Intermediate |
+| technique   | text | e.g. Shading, Perspective |
+| description | text?| Optional |
 
 #### `feedback`
 | Field          | Type      | Notes |
@@ -100,7 +113,7 @@ The app uses **Drift** as a typed ORM on top of SQLite.
 | feedbackText  | text?     | Nullable by design |
 
 **Images are NOT stored in the database**  
-Only the file path is saved. Image picking and storage are handled elsewhere.
+Only the file path is saved. Image picking and storage are handled separately.
 
 ---
 
@@ -117,7 +130,7 @@ flutter pub get
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-> Required whenever `tables.dart` changes.
+> Run this whenever `tables.dart` changes.
 
 ### 3) Run the app
 
@@ -125,44 +138,38 @@ flutter pub run build_runner build --delete-conflicting-outputs
 flutter run
 ```
 
+---
 
 ## Seed Data (Testing)
 
-The app includes a seed data feature for testing purposes. This automatically populates the database with dummy drawings when enabled.
+The app includes an optional seed feature for testing purposes (dummy drawings / placeholder data).
 
 ### Enable Seed Data
 
 1. Open `lib/data/local/seed_data.dart`
-2. Change `enabled` from `false` to `true`:
+2. Set:
+
    ```dart
-   static const bool enabled = true; // Enable seed data
+   static const bool enabled = true;
    ```
-3. Run the app - it will automatically create 12 sample drawings with different categories
+3. Run the app — it will populate the DB with sample entries (only if none exist).
 
 ### Disable Seed Data
 
-Set `enabled` back to `false`:
 ```dart
-static const bool enabled = false; // Disable seed data
+static const bool enabled = false;
 ```
 
 ### Clearing Seed Data
 
-Seed data is automatically skipped if drawings already exist. To clear seed data manually, you can use the `clearSeedData()` method or delete the app data.
+Seed data is skipped if drawings already exist. To reset:
 
-**Note:** Seed data uses the brush mascot image as a placeholder. In production, you would want to use actual sample drawings.
-
+* uninstall the app / clear app storage, **or**
+* delete the local database file (platform-dependent).
 
 ---
 
 ## Notes
 
-* Upload flow (Camera / Gallery) currently only shows a selection popup
-  → Actual image handling left to be handled
-* Feedback generation is currently **local / placeholder-ready**
-
----
-
-## Development Conventions
-
-* Do NOT store large binaries (images) in SQLite
+* Feedback generation is currently local / placeholder-ready
+* Asset folders under `assets/images/` contain backgrounds and inspiration images used by the UI
